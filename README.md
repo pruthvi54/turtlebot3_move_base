@@ -130,6 +130,7 @@ turtlebot3_move_base_wander/
 ## 6. Building
 
 ```bash
+- Clone the src and build like any other ROS1 repo with catkin_make
 cd /data2/pruthvi/Personal/turtlebot
 catkin_make
 source devel/setup.bash
