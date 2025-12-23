@@ -2,7 +2,10 @@
 
 You can watch a short demonstration of the wandering behavior here:
 
-[▶️ Turtlebot3 Move Base Wander Demo](turtlebot.mp4)
+
+
+https://github.com/user-attachments/assets/ced8dd96-3b99-431a-90ef-934124d358d9
+
 
 
 # Turtlebot3 Move Base Wandering - Standalone Repository
