@@ -1,10 +1,31 @@
 # Turtlebot3 Move Base Wandering - Standalone Repository
 
-This repository contains a complete ROS Noetic package for controlling Turtlebot3 in Gazebo with obstacle avoidance using `move_base`. Everything needed (world files, launch files, nodes) is contained within this repo.
+This repository contains a ROS Noetic catkin workspace with a single package for controlling Turtlebot3 in Gazebo with obstacle avoidance using the standard `move_base` navigation stack. The provided node continuously sends random navigation goals so the robot wanders while avoiding obstacles. A short demonstration of the system running is included in the repository as a video.
 
-## Quick Start
+## 1. Install dependencies
 
-### Option 1: Using SLAM (Recommended - Map Built On-The-Fly)
+You can install all required ROS packages with:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y \
+  ros-noetic-turtlebot3-gazebo \
+  ros-noetic-turtlebot3-navigation \
+  ros-noetic-turtlebot3-description \
+  ros-noetic-turtlebot3-msgs \
+  ros-noetic-move-base-msgs \
+  ros-noetic-dwa-local-planner \
+  ros-noetic-gmapping
+```
+
+These provide:
+- Gazebo simulation and Turtlebot3 models
+- Navigation stack (`move_base`, costmaps, AMCL, map_server, DWA local planner)
+- Messages used by the wandering node and move_base
+
+## 2. Quick Start
+
+### 2.1 Using SLAM (Recommended - Map Built On-The-Fly)
 
 **First, install gmapping:**
 ```bash
@@ -27,7 +48,7 @@ This will:
 - Run the wandering node that continuously sends random goals
 - **RViz will show the map being built in real-time, matching your Gazebo world**
 
-### Option 2: Using Pre-Built Map
+### 2.2 Using Pre-Built Map
 
 If you have a pre-built map file:
 
@@ -46,7 +67,25 @@ roslaunch turtlebot3_move_base_wander custom_world_wander.launch model:=burger
    rosrun map_server map_saver -f $(rospack find turtlebot3_move_base_wander)/maps/custom_world_map
    ```
 
-## Customizing Your World
+### 2.3 Simple Wander in Default Turtlebot3 World
+
+If you only want the robot to wander in the **default Turtlebot3 Gazebo world** using the standard Turtlebot3 navigation map:
+
+```bash
+cd /data2/pruthvi/Personal/turtlebot
+source /opt/ros/noetic/setup.bash
+source devel/setup.bash
+export TURTLEBOT3_MODEL=burger
+
+roslaunch turtlebot3_move_base_wander wander_with_move_base.launch model:=burger
+```
+
+This launch file:
+- Starts Gazebo with the default `turtlebot3_world.world`
+- Starts Turtlebot3 navigation (`turtlebot3_navigation.launch`, including `move_base` with DWA)
+- Runs the wandering node that sends random `move_base` goals
+
+## 3. Customizing Your World
 
 Edit the world file:
 ```
@@ -55,7 +94,7 @@ src/turtlebot3_move_base_wander/worlds/custom_tb3_world.world
 
 You can add obstacles, walls, or any Gazebo models. After editing, just relaunch.
 
-## Package Structure
+## 4. Package Structure
 
 ```
 turtlebot3_move_base_wander/
@@ -72,7 +111,7 @@ turtlebot3_move_base_wander/
     └── random_goal_wander.py           # Node that sends random goals to move_base
 ```
 
-## How It Works
+## 5. How It Works
 
 1. **Gazebo**: Simulates the Turtlebot3 robot in your custom world
 2. **SLAM (gmapping)**: Builds a map from laser scan data as the robot moves
@@ -80,16 +119,15 @@ turtlebot3_move_base_wander/
 4. **move_base**: Plans paths and avoids obstacles
 5. **random_goal_wander**: Continuously sends random navigation goals, keeping the robot moving
 
-## Dependencies
+### Main node implementing wandering / avoidance
 
-Required ROS packages (install if missing):
-- `ros-noetic-turtlebot3-gazebo`
-- `ros-noetic-turtlebot3-navigation`
-- `ros-noetic-turtlebot3-description`
-- `ros-noetic-move-base-msgs`
-- `ros-noetic-gmapping` (for SLAM option)
+- `src/turtlebot3_move_base_wander/src/random_goal_wander.py`
+  - Connects to the `move_base` action server.
+  - Samples random 2D goals within a configurable area in the `map` frame.
+  - Sends a new goal whenever the previous one succeeds, is aborted/rejected, or times out.
+  - All **obstacle avoidance** is handled by the standard `move_base` stack (global/local planners and costmaps).
 
-## Building
+## 6. Building
 
 ```bash
 cd /data2/pruthvi/Personal/turtlebot
