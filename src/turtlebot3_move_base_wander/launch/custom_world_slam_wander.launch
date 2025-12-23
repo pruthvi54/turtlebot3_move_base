@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Turtlebot3 model: burger, waffle, or waffle_pi -->
+    <arg name="model" default="$(env TURTLEBOT3_MODEL)" />
+    
+    <!-- Custom world file located inside this repo/package -->
+    <arg name="world_file"
+         default="$(find turtlebot3_move_base_wander)/worlds/custom_tb3_world.world" />
+
+    <!-- Start Gazebo with our custom world (standalone, no external world path needed) -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(arg world_file)" />
+        <arg name="paused" value="false" />
+        <arg name="use_sim_time" value="true" />
+        <arg name="gui" value="true" />
+        <arg name="headless" value="false" />
+        <arg name="debug" value="false" />
+    </include>
+
+    <!-- Spawn Turtlebot3 using description from installed turtlebot3_description -->
+    <param name="robot_description"
+           command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+
+    <node pkg="gazebo_ros"
+          type="spawn_model"
+          name="spawn_urdf"
+          args="-urdf -model turtlebot3_$(arg model) -x 0.0 -y 0.0 -z 0.0 -param robot_description" />
+
+    <!-- Turtlebot3 remote (for robot_state_publisher) -->
+    <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
+        <arg name="model" value="$(arg model)" />
+    </include>
+
+    <!-- SLAM: Use gmapping to build map on-the-fly from laser scan -->
+    <node pkg="gmapping" type="slam_gmapping" name="turtlebot3_slam_gmapping" output="screen">
+        <param name="base_frame" value="base_footprint"/>
+        <param name="odom_frame" value="odom"/>
+        <param name="map_update_interval" value="2.0"/>
+        <param name="maxUrange" value="3.0"/>
+        <param name="map_resolution" value="0.05"/>
+        <param name="sigma" value="0.05"/>
+        <param name="kernelSize" value="1"/>
+        <param name="lstep" value="0.05"/>
+        <param name="astep" value="0.05"/>
+        <param name="iterations" value="5"/>
+        <param name="lsigma" value="0.075"/>
+        <param name="ogain" value="3.0"/>
+        <param name="lskip" value="0"/>
+        <param name="srr" value="0.01"/>
+        <param name="srt" value="0.02"/>
+        <param name="str" value="0.01"/>
+        <param name="stt" value="0.02"/>
+        <param name="linearUpdate" value="0.5"/>
+        <param name="angularUpdate" value="0.436"/>
+        <param name="temporalUpdate" value="-1.0"/>
+        <param name="resampleThreshold" value="0.5"/>
+        <param name="particles" value="80"/>
+        <param name="xmin" value="-10.0"/>
+        <param name="ymin" value="-10.0"/>
+        <param name="xmax" value="10.0"/>
+        <param name="ymax" value="10.0"/>
+        <param name="delta" value="0.05"/>
+        <param name="llsamplerange" value="0.01"/>
+        <param name="llsamplestep" value="0.01"/>
+        <param name="lasamplerange" value="0.005"/>
+        <param name="lasamplestep" value="0.005"/>
+        <remap from="scan" to="scan"/>
+    </node>
+
+    <!-- AMCL for localization (needed for move_base) -->
+    <include file="$(find turtlebot3_navigation)/launch/amcl.launch"/>
+
+    <!-- move_base for navigation -->
+    <include file="$(find turtlebot3_navigation)/launch/move_base.launch">
+        <arg name="model" value="$(arg model)" />
+        <arg name="move_forward_only" value="false"/>
+    </include>
+
+    <!-- RViz -->
+    <node pkg="rviz" type="rviz" name="rviz" required="true"
+          args="-d $(find turtlebot3_navigation)/rviz/turtlebot3_navigation.rviz"/>
+
+    <!-- Random goal sender (wandering behavior) -->
+    <node pkg="turtlebot3_move_base_wander"
+          type="random_goal_wander.py"
+          name="random_goal_wander"
+          output="screen">
+        <param name="frame_id" value="map" />
+        <param name="min_x" value="-2.0" />
+        <param name="max_x" value="2.0" />
+        <param name="min_y" value="-2.0" />
+        <param name="max_y" value="2.0" />
+    </node>
+</launch>
+
+

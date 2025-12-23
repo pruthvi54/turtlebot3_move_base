@@ -1,0 +1,8 @@
+prefix=/data2/pruthvi/Personal/turtlebot/install
+
+Name: turtlebot3_move_base_wander
+Description: Description of turtlebot3_move_base_wander
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

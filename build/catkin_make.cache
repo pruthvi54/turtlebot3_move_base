@@ -1,0 +1,2 @@
+turtlebot3_move_base_wander
+-DCATKIN_DEVEL_PREFIX=/data2/pruthvi/Personal/turtlebot/devel -DCMAKE_INSTALL_PREFIX=/data2/pruthvi/Personal/turtlebot/install -G Unix Makefiles

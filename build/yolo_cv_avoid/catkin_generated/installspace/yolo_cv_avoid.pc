@@ -1,0 +1,8 @@
+prefix=/data2/pruthvi/Personal/turtlebot/install
+
+Name: yolo_cv_avoid
+Description: Description of yolo_cv_avoid
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

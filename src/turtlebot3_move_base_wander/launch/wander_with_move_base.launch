@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Turtlebot3 model: burger, waffle, or waffle_pi -->
+    <arg name="model" default="burger" />
+
+    <!-- Start Turtlebot3 in Gazebo default world -->
+    <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_world.launch">
+        <arg name="model" value="$(arg model)" />
+    </include>
+
+    <!-- Start Turtlebot3 navigation stack (includes move_base) -->
+    <include file="$(find turtlebot3_navigation)/launch/turtlebot3_navigation.launch">
+        <arg name="model" value="$(arg model)" />
+    </include>
+
+    <!-- Node that continuously sends random goals to move_base -->
+    <node pkg="turtlebot3_move_base_wander"
+          type="random_goal_wander.py"
+          name="random_goal_wander"
+          output="screen">
+        <param name="frame_id" value="map" />
+        <param name="min_x" value="-2.0" />
+        <param name="max_x" value="2.0" />
+        <param name="min_y" value="-2.0" />
+        <param name="max_y" value="2.0" />
+    </node>
+</launch>
+
+
+
