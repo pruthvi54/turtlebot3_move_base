@@ -1,3 +1,10 @@
+## Demo Video
+
+You can watch a short demonstration of the wandering behavior here:
+
+[▶️ Turtlebot3 Move Base Wander Demo](turtlebot.mp4)
+
+
 # Turtlebot3 Move Base Wandering - Standalone Repository
 
 This repository contains a ROS Noetic catkin workspace with a single package for controlling Turtlebot3 in Gazebo with obstacle avoidance using the standard `move_base` navigation stack. The provided node continuously sends random navigation goals so the robot wanders while avoiding obstacles. A short demonstration of the system running is included in the repository as a video.
